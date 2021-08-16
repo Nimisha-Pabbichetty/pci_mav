@@ -39,6 +39,7 @@ class PCIMAV : public PCIManager {
   ros::Subscriber status_sub_;
   ros::Publisher robot_status_pub_;
   ros::Publisher trajectory_pub_;
+  ros::Publisher init_trajectory_pub_;
   RunModeType run_mode_;
   bool init_motion_enable_;
   double v_max_;

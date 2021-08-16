@@ -10,7 +10,10 @@ PCIMAV::PCIMAV(const ros::NodeHandle &nh,
     : PCIManager(nh, nh_private) {
   // "command/trajectory" to the MPC controller.
   trajectory_pub_ = nh_.advertise<trajectory_msgs::MultiDOFJointTrajectory>(
-      mav_msgs::default_topics::COMMAND_TRAJECTORY, 10);
+      mav_msgs::default_topics::COMMAND_TRAJECTORY, 100);
+  //adding a publisher to move_base/command/trajectory for the initialisation sequence
+  init_trajectory_pub_ = nh_.advertise<trajectory_msgs::MultiDOFJointTrajectory>(
+      "m100/command/trajectory", 10);
   /* Example for getting the battery status from Matrice M100
    * then publish the status to the planner.
    */
@@ -154,13 +157,14 @@ bool PCIMAV::initMotion() {
     trajectory_point_msg_.time_from_start = ros::Duration(sum_time_from_start);
     samples_array_.points.push_back(trajectory_point_msg_);
   }
-  trajectory_pub_.publish(samples_array_);
+  init_trajectory_pub_.publish(samples_array_);
   pci_status_ = PCIStatus::kRunning;
   double wait_time = sum_time_from_start;
   ROS_INFO("... will take %f (sec) for initialization motion", wait_time);
   ros::Duration(wait_time).sleep();
   pci_status_ = PCIStatus::kReady;
   ROS_INFO("Finished the initialization.");
+  //trajectory_pub_.publish(samples_array_.points[path_new.size()-1]);
   return true;
 }
 
